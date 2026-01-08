@@ -57,6 +57,7 @@ url = "2.2"
 uuid = { version = "0.8", features = ["v4"] }
 
 [patch.crates-io]
+mail-parser = { path = "../mail-parser" }
 imap-codec.git = "https://github.com/duesee/imap-codec"
 
 email-lib.git = "https://github.com/pimalaya/core"
