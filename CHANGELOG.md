@@ -39,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed a raw message piped on stdin being sent or saved cut short, with no error, when it held invalid UTF-8 ([#786]).
+
+  `MessageArg` read stdin line by line and stopped at the first line that failed to decode. Piped stdin is now read whole and refused when it is not valid UTF-8, as a message file already was.
+
 - Fixed attachment downloads following dangling symlinks or overwriting existing files after filename suffixes are exhausted. Concurrent downloads now reserve filenames exclusively.
 - Fixed control and bidi characters from messages and servers reaching the terminal through the plain output.
 - Fixed pimdir queue details leaking into the shared outputs: `envelope list` no longer reports a `queued` count, and `message send`, `message add --send` and the composers no longer print a `queueId`. `himalaya pimdir queue list` shows what is queued, and a queued send logs its row id at info level.
@@ -1430,6 +1434,7 @@ Few major concepts changed:
 [#774]: https://github.com/pimalaya/himalaya/pull/774
 [#775]: https://github.com/pimalaya/himalaya/issues/775
 [#781]: https://github.com/pimalaya/himalaya/issues/781
+[#786]: https://github.com/pimalaya/himalaya/issues/786
 
 [core#1]: https://github.com/pimalaya/core/issues/1
 [core#10]: https://github.com/pimalaya/core/issues/10

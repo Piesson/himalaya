@@ -76,7 +76,7 @@ The same composers SHALL end the body with the account's `signature`, introduced
 With `--json` and neither `--save` nor `--send`, the same composers SHALL print the decoded `from`, `to`, `cc`, `bcc`, `subject` and `body` instead of the raw bytes, the body without any signature, so an editor can lay the message out and hand it back through the flags, sending appending the signature once. `--posting-style none` SHALL send the written body alone, the source left unquoted, for a writer who already laid the quote out.
 
 ### Requirement: Raw message input is shared
-A command taking a raw RFC 5322 message SHALL resolve it through the shared `MessageArg`: a file path, an inline value after `--`, or piped stdin. The resolved message is normalised to CRLF and rejected when empty, so no backend receives a zero-length message.
+A command taking a raw RFC 5322 message SHALL resolve it through the shared `MessageArg`: a file path, an inline value after `--`, or piped stdin. The resolved message is normalised to CRLF and rejected when empty, so no backend receives a zero-length message. Piped stdin is read whole and rejected when it is not valid UTF-8, so a message is never sent cut short.
 
 ### Requirement: Gmail draft writes return identities
 `gmail drafts create` and `gmail drafts update` SHALL serialize the returned draft `id`, and nullable `message-id` and `thread-id`, under `--json`, with schemas registered for both commands. Non-JSON output SHALL retain the existing success sentence. A response without a message SHALL still succeed, with `message-id` and `thread-id` null, since the draft was already written.

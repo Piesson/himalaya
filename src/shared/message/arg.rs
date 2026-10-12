@@ -9,7 +9,7 @@
 
 use std::{
     fs,
-    io::{IsTerminal, stdin},
+    io::{IsTerminal, Read, stdin},
 };
 
 use anyhow::{Context, bail};
@@ -64,10 +64,39 @@ impl MessageArg {
         }
 
         if !stdin().is_terminal() {
-            let lines: Vec<_> = stdin().lines().map_while(Result::ok).collect();
-            return Ok(lines.join("\r\n"));
+            return read_piped(stdin());
         }
 
         bail!("No message provided: pass it as an argument, a file path, or via stdin");
+    }
+}
+
+/// Reads piped input whole, normalising its line endings to CRLF.
+///
+/// NOTE: a read error or invalid UTF-8 is a hard error. Reading line by
+/// line and stopping at the first bad line would send the message cut
+/// short, and report success.
+fn read_piped(mut reader: impl Read) -> anyhow::Result<String> {
+    let mut message = String::new();
+    reader
+        .read_to_string(&mut message)
+        .context("Failed to read message from stdin")?;
+    Ok(crlf::normalize(&message))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::read_piped;
+
+    #[test]
+    fn piped_lf_becomes_crlf() {
+        let message = read_piped(&b"Subject: x\n\nbody\n"[..]).unwrap();
+        assert_eq!(message, "Subject: x\r\n\r\nbody\r\n");
+    }
+
+    #[test]
+    fn piped_invalid_utf8_is_refused() {
+        let message = read_piped(&b"Subject: x\r\n\r\nok\r\n\xff\r\ntail\r\n"[..]);
+        assert!(message.is_err());
     }
 }
